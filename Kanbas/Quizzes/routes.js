@@ -1,32 +1,42 @@
-import db from "../Database/index.js";
+import * as dao from "./dao.js";
+
 export default function QuizRoutes(app) {
-    app.put("/api/quizzes/:qid", (req, res) => {
-        const { qid } = req.params;
-        const quizIndex = db.quizzes.findIndex((q) => q._id === qid);
-        db.quizzes[quizIndex] = {
-            ...db.quizzes[quizIndex],
-            ...req.body,
-        };
-        res.sendStatus(204);
+    app.get("/api/quizzes", async (req, res) => {
+        const quizzes = await dao.findAllQuizzes();
+        res.json(quizzes);
     });
-    app.delete("/api/quizzes/:qid", (req, res) => {
+
+    app.get("/api/quizzes/:qid", async (req, res) => {
         const { qid } = req.params;
-        db.quizzes = db.quizzes.filter((q) => q._id !== qid);
-        res.sendStatus(200);
+        const quiz = await dao.findQuizByID(qid);
+        res.json(quiz);
     });
-    app.post("/api/courses/:cid/quizzes", (req, res) => {
+
+    app.get("/api/courses/:cid/quizzes", async (req, res) => {
+        const { cid } = req.params;
+        const quizzes = await dao.findQuizByCourse(cid);
+        res.json(quizzes);
+    });
+
+    app.post("/api/courses/:cid/quizzes", async (req, res) => {
         const { cid } = req.params;
         const newQuiz = {
             ...req.body,
-            course: cid,
-            _id: new Date().getTime().toString(),
+            course: cid
         };
-        db.quizzes.push(newQuiz);
-        res.send(newQuiz);
+        const createdQuiz = await dao.addQuiz(newQuiz);
+        res.json(createdQuiz);
     });
-    app.get("/api/courses/:cid/quizzes", (req, res) => {
-        const { cid } = req.params;
-        const quizzes = db.quizzes.filter((q) => q.course === cid);
-        res.json(quizzes);
+
+    app.put("/api/quizzes/:qid", async (req, res) => {
+        const { qid } = req.params;
+        const updatedQuiz = await dao.editQuiz(qid, req.body);
+        res.json(updatedQuiz);
+    });
+
+    app.delete("/api/quizzes/:qid", async (req, res) => {
+        const { qid } = req.params;
+        await dao.deleteQuiz(qid);
+        res.sendStatus(204);
     });
 }

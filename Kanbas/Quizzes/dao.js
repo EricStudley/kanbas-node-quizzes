@@ -1,5 +1,4 @@
 import model from "./model.js";
-import mongoose from "mongoose";
 
 export const findAllQuizzes = () => {
   return model.find();
@@ -14,7 +13,7 @@ export const findQuizByCourse = async (courseID) => {
     const quizzes = await model.find({ course: courseID });
     console.log("Quizzes in DAO:", quizzes); // Debug log
     return quizzes;
-  };
+};
 
 export const addQuiz = (quiz) => {
   delete quiz._id;
