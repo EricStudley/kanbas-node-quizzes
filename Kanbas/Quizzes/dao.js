@@ -9,9 +9,7 @@ export const findQuizByID = (quizID) => {
 };
 
 export const findQuizByCourse = async (courseID) => {
-    console.log("Course ID in DAO:", courseID); // Debug log
     const quizzes = await model.find({ course: courseID });
-    console.log("Quizzes in DAO:", quizzes); // Debug log
     return quizzes;
 };
 
