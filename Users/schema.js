@@ -16,6 +16,7 @@ const userSchema = new mongoose.Schema(
         section: String,
         lastActivity: Date,
         totalActivity: String,
+        courses: [String],
     },
     { collection: "users" }
 );
