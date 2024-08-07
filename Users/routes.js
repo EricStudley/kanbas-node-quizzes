@@ -1,79 +1,119 @@
 import * as dao from "./dao.js";
-let currentUser = null;
-export default function UserRoutes(app) {
-    const createUser = async (req, res) => {
-        const user = await dao.createUser(req.body);
-        res.json(user);
+
+export default function QuizRoutes(app) {
+  app.get("/api/quizzes", async (req, res) => {
+    try {
+      const quizzes = await dao.findAllQuizzes();
+      res.json(quizzes);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch quizzes" });
+    }
+  });
+
+  app.get("/api/quizzes/:qid", async (req, res) => {
+    const { qid } = req.params;
+    try {
+      const quiz = await dao.findQuizByID(qid);
+      if (quiz) {
+        res.json(quiz);
+      } else {
+        res.status(404).json({ error: "Quiz not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch quiz" });
+    }
+  });
+
+  app.get("/api/courses/:cid/quizzes", async (req, res) => {
+    const { cid } = req.params;
+    try {
+      const quizzes = await dao.findQuizByCourse(cid);
+      res.json(quizzes);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch quizzes" });
+    }
+  });
+
+  app.post("/api/courses/:cid/quizzes", async (req, res) => {
+    const { cid } = req.params;
+    const newQuiz = {
+      ...req.body,
+      course: cid,
     };
-    const deleteUser = async (req, res) => {
-        const status = await dao.deleteUser(req.params.userId);
-        res.json(status);
-    };
-    const findAllUsers = async (req, res) => {
-        const { role, name } = req.query;
-        if (role) {
-            const users = await dao.findUsersByRole(role);
-            res.json(users);
-            return;
-        }
-        if (name) {
-            const users = await dao.findUsersByPartialName(name);
-            res.json(users);
-            return;
-        }
-        const users = await dao.findAllUsers();
-        res.json(users);
-    };
-    const findUserById = async (req, res) => {
-        const user = await dao.findUserById(req.params.userId);
-        res.json(user);
-    };
-    const updateUser = async (req, res) => {
-        const { userId } = req.params;
-        const status = await dao.updateUser(userId, req.body);
-        res.json(status);
-    };
-    const signup = async (req, res) => {
-        const user = await dao.findUserByUsername(req.body.username);
-        if (user) {
-            res.status(400).json({ message: "Username already taken" });
-            return;
-        }
-        const currentUser = await dao.createUser(req.body);
-        req.session["currentUser"] = currentUser;
-        res.json(currentUser);
-    };
-    const signin = async (req, res) => {
-        const { username, password } = req.body;
-        const currentUser = await dao.findUserByCredentials(username, password);
-        if (currentUser) {
-            req.session["currentUser"] = currentUser;
-            res.json(currentUser);
-        } else {
-            res.status(401).json({
-                message: "Unable to login. Try again later.",
-            });
-        }
-    };
-    const signout = (req, res) => {
-        req.session.destroy();    
-        res.sendStatus(200);
-    };
-    const profile = async (req, res) => {
-        const currentUser = req.session["currentUser"];
-        if (!currentUser) {
-            res.sendStatus(401);
-            return;
-        }
-        res.json(currentUser);
-    };
-    app.post("/api/users", createUser);
-    app.get("/api/users", findAllUsers);
-    app.get("/api/users/:userId", findUserById);
-    app.put("/api/users/:userId", updateUser);
-    app.delete("/api/users/:userId", deleteUser);
-    app.post("/api/users/signup", signup);
-    app.post("/api/users/signin", signin);
-    app.post("/api/users/signout", signout);
-    app.post("/api/users/profile", profile);
+    try {
+      const createdQuiz = await dao.addQuiz(newQuiz);
+      res.status(201).json(createdQuiz);
+    } catch (error) {
+      res.status(400).json({ error: "Failed to create quiz" });
+    }
+  });
+
+  app.put("/api/quizzes/:qid", async (req, res) => {
+    const { qid } = req.params;
+    try {
+      const updatedQuiz = await dao.editQuiz(qid, req.body);
+      if (updatedQuiz.nModified > 0) {
+        res.json(updatedQuiz);
+      } else {
+        res.status(404).json({ error: "Quiz not found or no changes made" });
+      }
+    } catch (error) {
+      res.status(400).json({ error: "Failed to update quiz" });
+    }
+  });
+
+  app.delete("/api/quizzes/:qid", async (req, res) => {
+    const { qid } = req.params;
+    try {
+      await dao.deleteQuiz(qid);
+      res.sendStatus(204);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete quiz" });
+    }
+  });
+
+  // New endpoints for managing quiz questions
+  app.post("/api/quizzes/:qid/questions", async (req, res) => {
+    const { qid } = req.params;
+    const question = req.body;
+    try {
+      const updatedQuiz = await dao.addQuestionToQuiz(qid, question);
+      if (updatedQuiz.nModified > 0) {
+        res.status(201).json(updatedQuiz);
+      } else {
+        res.status(404).json({ error: "Quiz not found" });
+      }
+    } catch (error) {
+      res.status(400).json({ error: "Failed to add question" });
+    }
+  });
+
+  app.put("/api/quizzes/:qid/questions/:questionID", async (req, res) => {
+    const { qid, questionID } = req.params;
+    const question = req.body;
+    try {
+      const updatedQuiz = await dao.updateQuestionInQuiz(qid, questionID, question);
+      if (updatedQuiz.nModified > 0) {
+        res.json(updatedQuiz);
+      } else {
+        res.status(404).json({ error: "Quiz or question not found" });
+      }
+    } catch (error) {
+      res.status(400).json({ error: "Failed to update question" });
+    }
+  });
+
+  app.delete("/api/quizzes/:qid/questions/:questionID", async (req, res) => {
+    const { qid, questionID } = req.params;
+    try {
+      const updatedQuiz = await dao.deleteQuestionFromQuiz(qid, questionID);
+      if (updatedQuiz.nModified > 0) {
+        res.sendStatus(204);
+      } else {
+        res.status(404).json({ error: "Quiz or question not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete question" });
+    }
+  });
 }

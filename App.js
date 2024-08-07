@@ -8,8 +8,7 @@ import AssignmentRoutes from "./Kanbas/Assignments/routes.js";
 import QuizRoutes from "./Kanbas/Quizzes/routes.js";
 import UserRoutes from "./Users/routes.js";
 import cors from "cors";
-const CONNECTION_STRING =
-    process.env.MONGO_CONNECTION_STRING || "mongodb://localhost:27017/kanbas";
+const CONNECTION_STRING = "mongodb+srv://juandum82:juandum82@kanbas.bpglgwu.mongodb.net/kanbas?retryWrites=true&w=majority&appName=Kanbas";
 mongoose.connect(CONNECTION_STRING);
 const app = express();
 app.use(
