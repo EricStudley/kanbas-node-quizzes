@@ -76,14 +76,17 @@ export default function QuizRoutes(app) {
   app.post("/api/quizzes/:qid/questions", async (req, res) => {
     const { qid } = req.params;
     const question = req.body;
+    console.log(`Received request to add question to quiz ${qid}`);
+    console.log(`Question: ${JSON.stringify(question)}`);
     try {
       const updatedQuiz = await dao.addQuestionToQuiz(qid, question);
-      if (updatedQuiz.nModified > 0) {
+      if (updatedQuiz.matchedCount > 0) {
         res.status(201).json(updatedQuiz);
       } else {
         res.status(404).json({ error: "Quiz not found" });
       }
     } catch (error) {
+      console.error(`Failed to add question: ${error}`);
       res.status(400).json({ error: "Failed to add question" });
     }
   });
@@ -114,6 +117,20 @@ export default function QuizRoutes(app) {
       }
     } catch (error) {
       res.status(500).json({ error: "Failed to delete question" });
+    }
+  });
+
+  app.get("/api/quizzes/:qid/questions", async (req, res) => {
+    const { qid } = req.params;
+    try {
+      const quiz = await dao.findQuizByID(qid);
+      if (quiz) {
+        res.json(quiz.questions);
+      } else {
+        res.status(404).json({ error: "Quiz not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch questions" });
     }
   });
 }

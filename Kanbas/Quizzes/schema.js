@@ -1,10 +1,23 @@
 import mongoose from "mongoose";
+import moment from "moment";
 
 const questionSchema = new mongoose.Schema(
   {
-    questionText: { type: String, required: true },
-    options: [{ text: String, isCorrect: Boolean }],
-    points: { type: Number, default: 1 },
+    title: { type: String, required: true },
+    points: { type: Number, required: true, default: 1 },
+    questionType: {
+      type: String,
+      enum: ["TRUE_FALSE", "MULTIPLE_CHOICE", "FILL_IN"],
+      default: "MULTIPLE_CHOICE",
+      required: true
+    },
+    question: String,
+    mutlipleChoiceQuestionAnswers: [{
+      answer: String,
+      correct: Boolean
+    }],
+    trueFalseAnswer: Boolean,
+    fillInBlankAnswers: [String]
   },
   { _id: false }
 );
@@ -30,9 +43,9 @@ const quizSchema = new mongoose.Schema(
     requiredToViewResults: { type: Boolean, default: false },
     webcamRequired: { type: Boolean, default: false },
     lockQuestions: { type: Boolean, default: false },
-    dueDate: { type: Date, default: null },
-    availableDate: { type: Date, default: null },
-    untilDate: { type: Date, default: null },
+    dueDate: { type: Date, default: moment().startOf('day') },
+    availableDate: { type: Date, default: moment().add(-1, 'days').startOf('day') },
+    untilDate: { type: Date, default: moment().add(1, 'days').startOf('day') },
     questions: [questionSchema]
   },
   { collection: "quizzes" }
