@@ -44,7 +44,11 @@ const quizSchema = new mongoose.Schema(
                     }
                 ],
                 trueFalseCorrect: { type: Boolean, default: false },
-                fillInTheBlankCorrect: { type: String, default: "" },
+                fillInTheBlankCorrectAnswers: [
+                    {
+                        text: { type: String, default: "" },
+                    }
+                ],
             },
         ],
     },
