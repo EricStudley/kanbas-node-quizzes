@@ -23,6 +23,34 @@ const quizSchema = new mongoose.Schema(
         dueDate: { type: Date, default: null },
         availableDate: { type: Date, default: null },
         untilDate: { type: Date, default: null },
+        questions: [
+            {
+                title: { type: String, default: "New Question" },
+                type: {
+                    type: String,
+                    enum: [
+                        "Multiple Choice",
+                        "True/False",
+                        "Fill in the Blank",
+                    ],
+                    default: "Multiple Choice",
+                },
+                points: { type: Number, default: 0 },
+                question: { type: String, default: "" },
+                multipleChoices: [
+                    {
+                        text: { type: String, default: "" },
+                        correct: { type: Boolean, default: false },
+                    }
+                ],
+                trueFalseCorrect: { type: Boolean, default: false },
+                fillInTheBlankCorrectAnswers: [
+                    {
+                        text: { type: String, default: "" },
+                    }
+                ],
+            },
+        ],
     },
     { collection: "quizzes" }
 );
