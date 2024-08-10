@@ -20,6 +20,8 @@ const userSchema = new mongoose.Schema(
         quizAnswers: [
             {
                 quizId: { type: String, required: true },
+                attempts: { type: Number, default: 0 },
+                score: { type: Number, default: 0 },
                 answers: [
                     {
                         questionId: { type: String, required: true },
