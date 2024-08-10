@@ -20,9 +20,9 @@ const quizSchema = new mongoose.Schema(
         requiredToViewResults: { type: Boolean, default: false },
         webcamRequired: { type: Boolean, default: false },
         lockQuestions: { type: Boolean, default: false },
-        dueDate: { type: Date, default: null },
-        availableDate: { type: Date, default: null },
-        untilDate: { type: Date, default: null },
+        dueDate: { type: String, default: null },
+        availableDate: { type: String, default: null },
+        untilDate: { type: String, default: null },
         questions: [
             {
                 title: { type: String, default: "New Question" },
