@@ -17,6 +17,21 @@ const userSchema = new mongoose.Schema(
         lastActivity: Date,
         totalActivity: String,
         courses: [String],
+        quizAnswers: [
+            {
+                quizId: { type: String, required: true },
+                attempts: { type: Number, default: 0 },
+                score: { type: Number, default: 0 },
+                answers: [
+                    {
+                        questionId: { type: String, required: true },
+                        multipleChoiceAnswerIndex: { type: Number, default: -1 },
+                        trueFalseAnswer: String,
+                        fillInTheBlankAnswer: String,
+                    },
+                ],
+            },
+        ],
     },
     { collection: "users" }
 );

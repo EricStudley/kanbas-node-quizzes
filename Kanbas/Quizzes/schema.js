@@ -43,7 +43,7 @@ const quizSchema = new mongoose.Schema(
                         correct: { type: Boolean, default: false },
                     }
                 ],
-                trueFalseCorrect: { type: Boolean, default: false },
+                trueFalseCorrect: { type: String, default: false },
                 fillInTheBlankCorrectAnswers: [
                     {
                         text: { type: String, default: "" },
